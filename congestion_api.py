@@ -3,6 +3,7 @@
 from dotenv import load_dotenv
 import os
 import requests
+import xml.etree.ElementTree as ET
 
 # load .env file
 load_dotenv()
@@ -12,10 +13,9 @@ congestion_apikey = os.getenv("CONGESTION_APIKEY")
 
 # get latitude & longitude for the location user input (since HERE API deals with lat & lon)
 def get_lat_lon(location, api_key):
-    url = "https://geocode.search.hereapi.com/v1/geocode"
+    url = f"https://api.tomtom.com/search/2/geocode/{location}.json" # must put the 'f' in front so that the location goes inside the url link, without the 'f' --> "{location}" will be treated as tho it is literally part of the url...
     params = {
-        "q": location, # "q" bc that is the param HERE API expects
-        "apiKey": api_key 
+        "key": api_key # dont nd declare location in params bc it is alr in url
     }
 
     # send req to geocode api
@@ -24,58 +24,86 @@ def get_lat_lon(location, api_key):
     # check if req successful
     if response.status_code == 200:
         data = response.json()
-        if data['items']:
-            lat = data['items'][0]['position']['lat']
-            lon = data['items'][0]['position']['lng']
+        if data['results']:
+            lat = data['results'][0]['position']['lat']
+            lon = data['results'][0]['position']['lon']
             return lat, lon
         else:
             print(f"No results found for {location}")
             return None
     else:
-        print(f"Error: {response.status_code}")
+        print(f"Error {response.status_code}: {response.text}")
         return None
 
-# congestion api
+# congestion api to get data
 def get_congestion_data(api_key, lat, lon):
-    url = "https://traffic.api.here.com/traffic/6.3/incidents.json" 
+    url = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/xml"
     params = {
-        "apiKey": api_key,         
-        "prox": f"{lat},{lon},5000",  # 5000 = 5km. eg User input effiel tower, i will extract data regarding traffic congestion for within 5km of the effiel tower
-        "responseattributes": "severity"  # to get severity of traffic incidents/disruptons eg Constructions, road closures
+        "key": api_key,         
+        "point": f"{lat},{lon}"
     }
+
+    # print("Request URL:", requests.Request("GET", url, params=params).prepare().url) # debug
 
     # send api req
     response = requests.get(url, params=params)
 
     # check if req successful
     if response.status_code == 200:
-        data = response.json()
-        incidents = data.get('incidents', [])
-        
-        # analyze how severe the incidents are --> then can get traffic congestion
-        if incidents: 
-            severity = incidents[0].get('severity',0) # if severity key not inside, then return 0
-            if severity == 1:
-                return "Low"
-            elif severity == 2:
-                return "Medium"
-            elif severity == 3:
-                return "High"
-        else:
-            return "Low" # since no incidents found
+        data = response.text # stores data in xml format, thus is not "data = response.json"
+        return data
     else:
-        print(f"HELLO Error: {response.status_code}")
+        print(f"Error: {response.status_code} - {response.text}")
         return None
+    
+# function to determine the congestion levels (low, med, high) )
+def get_congestion_level(current_speed, free_flow_speed, road_closure):
+    speed_ratio = current_speed / free_flow_speed 
+    
+    if road_closure:
+        if speed_ratio > 0.8: # bc road close, more vehicles
+            return "Medium" 
+        else:
+            return "High"
+        
+    else:
+        if speed_ratio > 0.8:
+            return "Low"
+        elif 0.5 <= speed_ratio <= 0.8:
+            return "Medium"
+        else:
+            return "High"
+
+
+# function to get specific data to pass into the above function which will then dtermine congestion levels
+# --- bc tomtom api do not directly say congestion level, have to use the data they have & infer yourself
+def parse_congestion_data(xml_data):
+    root = ET.fromstring(xml_data)
+
+    road_closure = root.find('.//roadClosure').text.lower == "true"
+    current_speed = float(root.find('.//currentSpeed').text)
+    free_flow_speed = float(root.find('.//freeFlowSpeed').text) # == the ideal speed vehicles shld travel at to prevent congestion
+
+    if road_closure:
+        return "Road Closed" # print this as a warning to drivers eg just let them know that have road closure, thus congestion might == medium/high altho vehicles travelling at an ideal pace aka > 0.8
+    
+    congestion_level = get_congestion_level(current_speed, free_flow_speed, road_closure)
+    return congestion_level
     
     
 def main():
     location = input("Enter location: ")
-    lat, lon = get_lat_lon(location, congestion_apikey)
+    lat_lon = get_lat_lon(location, congestion_apikey)
     
-    if lat and lon:
+    if lat_lon:
+        lat, lon = lat_lon
         print(f"Latitude: {lat}, Longitude: {lon}")
         current_congestion = get_congestion_data(congestion_apikey, lat, lon)
-        print(f"Current Congestion Level: {current_congestion}")
+        if current_congestion:
+            congestion_level = parse_congestion_data(current_congestion)
+            print(f"Current Congestion Level: {congestion_level}")
+        else:
+            print("Could not retrieve congestion data.")
         
     else:
         print("Unable to find location.")
