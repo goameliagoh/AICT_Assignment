@@ -108,7 +108,7 @@ def main():
     else:
         print("Unable to find location.")
 
-# Run the program
+# to run the program
 if __name__ == "__main__":
     main()
 
