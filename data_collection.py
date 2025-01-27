@@ -1,3 +1,5 @@
+# for data collection, only did so for 2 days from 7am to 10pm, then the rest i added myself bc the data api wasnt giving me specific data like eg "Congestion is Medium when it is a thunderstorm morning" ====> problematic bc affected my conditional probabilities as it cause the scenario where P( Medium | Morning, Thunderstorm) = 0.. which will then affect bayesian
+
 import time
 import json
 from weather_api import get_weather_data, normalize_weather_description
@@ -68,8 +70,8 @@ def save_data(data, filename="collected_data.json"):
         else:
             existing_data = []
 
-        # append new data
-        existing_data.append(data)
+        # append new data (allows me to collect data from 7am to 10pm for 1 day, then pause and resume collecting data from 7am to 10pm for another day)
+        existing_data.append(data) 
 
         # then save all the data back to the file
         with open(filename, "w") as file:

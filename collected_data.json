@@ -127,7 +127,7 @@
     {
         "time_period": "Evening",
         "weather": "Rain",
-        "congestion_level": "High"
+        "congestion_level": "Medium"
     },
     {
         "time_period": "Evening",
@@ -153,5 +153,295 @@
         "time_period": "Evening",
         "weather": "Clear",
         "congestion_level": "Low"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Clouds",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Thunderstorm",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Thunderstorm",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Rain",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Rain",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Rain",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Rain",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Drizzle",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Drizzle",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Drizzle",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Clear",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Clear",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Clouds",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Drizzle",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Clouds",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Clouds",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Clouds",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Clouds",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Clouds",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Rain",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Rain",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Rain",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clear",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clear",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clear",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clear",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clear",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clouds",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clear",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clear",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clear",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Thunderstorm",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Thunderstorm",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Clear",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Drizzle",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Drizzle",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Morning",
+        "weather": "Rain",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clouds",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clouds",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Thunderstorm",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Thunderstorm",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Rain",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Clear",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Drizzle",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Drizzle",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Drizzle",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Rain",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Clouds",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Thunderstorm",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Thunderstorm",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Thunderstorm",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Clear",
+        "congestion_level": "Medium"
+    }, 
+    {
+        "time_period": "Afternoon",
+        "weather": "Clear",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Drizzle",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Thunderstorm",
+        "congestion_level": "Medium"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Drizzle",
+        "congestion_level": "High"
+    },
+    {
+        "time_period": "Afternoon",
+        "weather": "Rain",
+        "congestion_level": "Low"
+    },
+    {
+        "time_period": "Evening",
+        "weather": "Thunderstorm",
+        "congestion_level": "High"
     }
 ]
