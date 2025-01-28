@@ -460,7 +460,7 @@ grouped = df.groupby(['time_period', 'weather', 'congestion_level']).size().rese
 
 
 
-# ---------- for indepdent probabilities ---------------------
+# ---------- for indepdent probabilities (for the bayesian network later) ---------------------
 total_entries = len(df)
 
 # Calculate P(time_period)
@@ -473,11 +473,11 @@ p_weather = df["weather"].value_counts() / total_entries
 print("\nIndependent probabilities for weather:")
 print(p_weather.to_string())
 
-# Calculate P(congestion_level)
-p_congestion_level = df["congestion_level"].value_counts() / total_entries
-print("\nIndependent probabilities for congestion_level:")
-print(p_congestion_level.to_string())
-#  --------------------------------------------------------------
+# # Calculate P(congestion_level) <-- not independent? 
+# p_congestion_level = df["congestion_level"].value_counts() / total_entries
+# print("\nIndependent probabilities for congestion_level:")
+# print(p_congestion_level.to_string())
+#  -----------------------------------------------------------------------------------------
 
 
 
@@ -488,14 +488,18 @@ print(p_congestion_level.to_string())
 # --- DONT HAVE congestion_level in the grouped.groupby(['time_period', 'weather']) bc congestion_level is what we r tryna find --> so we only grp data by time period and weather 
 # --- overall, this is firstly grouping your data into unique group combinations regarding the time and weather --> then. we will focus on the 'count' column --> and therefore the 'count' column is where we apply our transformations on. 
 # --- lamnda = just a simpler way to do quick operations in Python
-# --- the lamba x : x / x.sum is applied for each unique group (aka each unique combo of time and weather ), not the whole set of data..
-grouped['P(congestion_level|time_period,weather)'] = grouped.groupby(['time_period', 'weather'])['count'].transform(lambda x: x / x.sum())
+# --- the lamba x : x / x.sum is applied for each unique group (aka each unique combo of time and weather ), not the whole set of data.. <== eg 'count' for a particular grp is [3, 4, 5] then x will loop thru and become x=3 first, then x.sum=12 3/12, then move on x=4 etc etc
+grouped['P(congestion_level|time_period,weather)'] = grouped.groupby(['time_period', 'weather'])['count'].transform(lambda x: x / x.sum()) 
 #  --------------------------------------------------------------------------------
 
 
 
+# TESTING THE CALCULATION : To check that the probabilities sum to 1 for each group
+# print(grouped.groupby(['time_period', 'weather'])['P(congestion_level|time_period,weather)'].sum().reset_index(name='sum'))
 # # Round the conditional probabilities to 2 decimal places (js rmv this line of code if dw in 2dp) <== dw round so cn be more accurate?
 # grouped['P(congestion_level|time_period,weather)'] = grouped['P(congestion_level|time_period,weather)'].round(2)
+
+
 
 # Display the result
 print()
