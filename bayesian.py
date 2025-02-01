@@ -1,94 +1,124 @@
-import numpy as np
-from scipy.stats import norm
+import pandas as pd
 
-# dictionary to store independent probabilities for Time 
-time_period_probs = {
-    'Morning': 0.292135,
-    'Afternoon': 0.382022,
-    'Evening': 0.325843
-}
+class BayesianNetwork:
+    def __init__(self):
+        self.nodes = {}  # to store nodes and their dependencies
+        self.probability_table = None  # to store precomputed probabilities
 
-# dictionary to store independent probabilities for Weather
-weather_probs = {
-    'Clear': 0.314607,
-    'Clouds': 0.213483,
-    'Drizzle': 0.123596,
-    'Rain': 0.224719,
-    'Thunderstorm': 0.123596
-}
+    def add_node(self, node):
+        """Adds a node to the network without any parents."""
+        if node not in self.nodes:
+            self.nodes[node] = []
 
-# conditional probabilities for Congestion, given the Time and Weather
-# in the format of: High congestion, Medium congestion, Low congestion (cn be any format as long as consistent)
-congestion_level_probs = {
-    'Morning': {
-        'Clear': [0.285714, 0.142857, 0.571429],
-        'Clouds': [0.200000, 0.200000, 0.600000],
-        'Drizzle': [0.200000, 0.200000, 0.600000],
-        'Rain': [0.600000, 0.200000, 0.200000],
-        'Thunderstorm': [0.500000, 0.250000, 0.250000],
-    },
-    'Afternoon': {
-        'Clear': [0.142857, 0.142857, 0.714286],
-        'Clouds': [0.090909, 0.090909, 0.818182],
-        'Drizzle': [0.333333, 0.333333, 0.333333],
-        'Rain': [0.666667, 0.222222, 0.111111],
-        'Thunderstorm': [0.250000, 0.500000, 0.250000],
-    },
-    'Evening': {
-        'Clear': [0.071429, 0.214286, 0.714286],
-        'Clouds': [0.333333, 0.333333, 0.333333],
-        'Drizzle': [0.333333, 0.333333, 0.333333],
-        'Rain': [0.666667, 0.166667, 0.166667],
-        'Thunderstorm': [0.333333, 0.333333, 0.333333],
-    }
-}
+    def add_edge(self, parent, child):
+        """Defines dependency: child depends on parent."""
+        if child in self.nodes:
+            self.nodes[child].append(parent)
+        else:
+            self.nodes[child] = [parent]
 
-# to calculate the probability of Congestion_Level given Time_Period and Weather (Inference)
-def get_inference(time_period, weather):
-    congestion_probs = congestion_level_probs[time_period][weather]
-    return congestion_probs
+    def load_probability_data(self, probability_df):
+        """Loads precomputed probability values into the network."""
+        self.probability_table = probability_df
 
-# to calculate the likelihood of a certain given congestion level occuring when it is (given time), (given weather)
-def get_likelihood(time_period, weather, target_congestion_level):
-    # get the probabilities for given target congestion level (High, Medium, Low)
-    congestion_probs = congestion_level_probs[time_period][weather]
-    
-    congestion_levels = ['High', 'Medium', 'Low'] # <== aka the same format as i used above aka High to Low congestion
-    target_index = congestion_levels.index(target_congestion_level) # <-- to get the index of where the target congestion is at (look @ notes below for example)
-    
-    return congestion_probs[target_index]
+    def infer_most_likely_congestion(self, time_period, weather):
+        """Returns the most likely congestion level given time & weather."""
+        if self.probability_table is None:
+            raise ValueError("Probability data not loaded!")
+
+        filtered = self.probability_table[
+            (self.probability_table['time_period'] == time_period) &
+            (self.probability_table['weather'] == weather)
+        ]
+
+        if filtered.empty:
+            return "No data available for the given inputs."
+
+        # will find the congestion level with highest probability
+        most_likely = filtered.loc[filtered['posterior_probability'].idxmax()]
+        return f"Most likely congestion level: {most_likely['congestion_level']} (Probability: {most_likely['posterior_probability']:.2%})"
+
+    def get_congestion_probability(self, time_period, weather, congestion_level):
+        if self.probability_table is None:
+            raise ValueError("Probability data not loaded!")
+
+        filtered = self.probability_table[
+            (self.probability_table['time_period'] == time_period) &
+            (self.probability_table['weather'] == weather) &
+            (self.probability_table['congestion_level'] == congestion_level)
+        ]
+
+        if filtered.empty:
+            return f"No data available for {time_period}, {weather}, {congestion_level}."
+
+        return f"Probability of {congestion_level} congestion: {filtered.iloc[0]['posterior_probability']:.2%}"
 
 
+bn = BayesianNetwork()
 
-# Example query: What is the probability of congestion being 'High' given 'Morning' and 'Rain'?
-time_period = 'Afternoon'
-weather = 'Rain'
-likelihood_congestion_level = 'High'
+# define nodes aka variables
+bn.add_node("Time Period")
+bn.add_node("Weather")
+bn.add_node("Congestion Level")
 
-# Inference:
-congestion_probs = get_inference(time_period, weather)
-# Display the result
-congestion_level = ['High', 'Medium', 'Low'] # so can enumerate
-print("Inference:")
-print()
-for i, level in enumerate(congestion_level):
-    print(f"Probability of {level} congestion when time is {time_period} and weather is {weather}: {congestion_probs[i]:.4f}")
+# define edges aka dependencies
+bn.add_edge("Time Period", "Congestion Level")
+bn.add_edge("Weather", "Congestion Level")
 
-print()
+# data obtained from calculate_probabilities.py output file
+data = [
+    {"time_period": "Afternoon", "weather": "Clear", "congestion_level": "High", "posterior_probability": 0.103448},
+    {"time_period": "Afternoon", "weather": "Clear", "congestion_level": "Low", "posterior_probability": 0.823755},
+    {"time_period": "Afternoon", "weather": "Clear", "congestion_level": "Medium", "posterior_probability": 0.072797},
+    {"time_period": "Afternoon", "weather": "Clouds", "congestion_level": "High", "posterior_probability": 0.062356},
+    {"time_period": "Afternoon", "weather": "Clouds", "congestion_level": "Low", "posterior_probability": 0.893764},
+    {"time_period": "Afternoon", "weather": "Clouds", "congestion_level": "Medium", "posterior_probability": 0.043880},
+    {"time_period": "Afternoon", "weather": "Drizzle", "congestion_level": "High", "posterior_probability": 0.303371},
+    {"time_period": "Afternoon", "weather": "Drizzle", "congestion_level": "Low", "posterior_probability": 0.483146},
+    {"time_period": "Afternoon", "weather": "Drizzle", "congestion_level": "Medium", "posterior_probability": 0.213483},
+    {"time_period": "Afternoon", "weather": "Rain", "congestion_level": "High", "posterior_probability": 0.666667},
+    {"time_period": "Afternoon", "weather": "Rain", "congestion_level": "Low", "posterior_probability": 0.176955},
+    {"time_period": "Afternoon", "weather": "Rain", "congestion_level": "Medium", "posterior_probability": 0.156379},
+    {"time_period": "Afternoon", "weather": "Thunderstorm", "congestion_level": "High", "posterior_probability": 0.250000},
+    {"time_period": "Afternoon", "weather": "Thunderstorm", "congestion_level": "Low", "posterior_probability": 0.398148},
+    {"time_period": "Afternoon", "weather": "Thunderstorm", "congestion_level": "Medium", "posterior_probability": 0.351852},
+    {"time_period": "Evening", "weather": "Clear", "congestion_level": "High", "posterior_probability": 0.052529},
+    {"time_period": "Evening", "weather": "Clear", "congestion_level": "Low", "posterior_probability": 0.836576},
+    {"time_period": "Evening", "weather": "Clear", "congestion_level": "Medium", "posterior_probability": 0.110895},
+    {"time_period": "Evening", "weather": "Clouds", "congestion_level": "High", "posterior_probability": 0.303371},
+    {"time_period": "Evening", "weather": "Clouds", "congestion_level": "Low", "posterior_probability": 0.483146},
+    {"time_period": "Evening", "weather": "Clouds", "congestion_level": "Medium", "posterior_probability": 0.213483},
+    {"time_period": "Evening", "weather": "Drizzle", "congestion_level": "High", "posterior_probability": 0.303371},
+    {"time_period": "Evening", "weather": "Drizzle", "congestion_level": "Low", "posterior_probability": 0.483146},
+    {"time_period": "Evening", "weather": "Drizzle", "congestion_level": "Medium", "posterior_probability": 0.213483},
+    {"time_period": "Evening", "weather": "Rain", "congestion_level": "High", "posterior_probability": 0.635294},
+    {"time_period": "Evening", "weather": "Rain", "congestion_level": "Low", "posterior_probability": 0.252941},
+    {"time_period": "Evening", "weather": "Rain", "congestion_level": "Medium", "posterior_probability": 0.111765},
+    {"time_period": "Evening", "weather": "Thunderstorm", "congestion_level": "High", "posterior_probability": 0.303371},
+    {"time_period": "Evening", "weather": "Thunderstorm", "congestion_level": "Low", "posterior_probability": 0.483146},
+    {"time_period": "Evening", "weather": "Thunderstorm", "congestion_level": "Medium", "posterior_probability": 0.213483},
+    {"time_period": "Morning", "weather": "Clear", "congestion_level": "High", "posterior_probability": 0.220408},
+    {"time_period": "Morning", "weather": "Clear", "congestion_level": "Low", "posterior_probability": 0.702041},
+    {"time_period": "Morning", "weather": "Clear", "congestion_level": "Medium", "posterior_probability": 0.077551},
+    {"time_period": "Morning", "weather": "Clouds", "congestion_level": "High", "posterior_probability": 0.154286},
+    {"time_period": "Morning", "weather": "Clouds", "congestion_level": "Low", "posterior_probability": 0.737143},
+    {"time_period": "Morning", "weather": "Clouds", "congestion_level": "Medium", "posterior_probability": 0.108571},
+    {"time_period": "Morning", "weather": "Drizzle", "congestion_level": "High", "posterior_probability": 0.154286},
+    {"time_period": "Morning", "weather": "Drizzle", "congestion_level": "Low", "posterior_probability": 0.737143},
+    {"time_period": "Morning", "weather": "Drizzle", "congestion_level": "Medium", "posterior_probability": 0.108571},
+    {"time_period": "Morning", "weather": "Rain", "congestion_level": "High", "posterior_probability": 0.566434},
+    {"time_period": "Morning", "weather": "Rain", "congestion_level": "Low", "posterior_probability": 0.300699},
+    {"time_period": "Morning", "weather": "Rain", "congestion_level": "Medium", "posterior_probability": 0.132867},
+    {"time_period": "Morning", "weather": "Thunderstorm", "congestion_level": "High", "posterior_probability": 0.465517},
+    {"time_period": "Morning", "weather": "Thunderstorm", "congestion_level": "Low", "posterior_probability": 0.370690},
+    {"time_period": "Morning", "weather": "Thunderstorm", "congestion_level": "Medium", "posterior_probability": 0.163793}
+]
 
-# Likelihood:
-likelihood = get_likelihood(time_period, weather, likelihood_congestion_level)
-print()
-print("Likelihood:")
-print(f"\nLikelihood of time being {time_period} and weather being {weather} given 'High' congestion: {likelihood:.4f}")
+probability_df = pd.DataFrame(data)
 
-print()
+# load precomputed probability table
+bn.load_probability_data(probability_df)
 
-
-
-
-
-
-# ----------NOTES --------------
-# .index() function ==> eg colors = ['Red', 'Yellow', 'Blue', 'Green'], target_color = 'Green', index_of_target_color = colors.index(target_color), print(index_of_target_color), output = 3
-# .enumerate() function ==> same eg as ^^, for index, color in enumerate(colors) print (f{index}, {color}), output = 0 Red, 1 Yellow, 2 Blue, 3 Green
+# inference + likelihood queries
+print(bn.infer_most_likely_congestion("Morning", "Clear"))  # Find most likely congestion level
+print(bn.get_congestion_probability("Evening", "Rain", "High"))  # Find probability of specific congestion level
