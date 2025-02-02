@@ -35,33 +35,33 @@ def check_traffic_congestion(current_route, congestion_level):
 navigation_data = [
     {
         "vehicle_id": "A1",
-        "speed": 100,  # in km/h
+        "speed": 100,
         "road_type": "expressway",
         "signal": "red",
-        "is_moving": False,  # Compliant with red light
+        "is_moving": True,  # Violating red light rule
         "location": "pedestrian_crossing",
-        "vehicle_action": "yielding",  # Giving way to pedestrians
+        "vehicle_action": "moving_forward",
         "is_intersection_blocked": False,
         "is_entering_intersection": False,
         "current_route": "Route 1",
-        "congestion_level": "medium",
+        "congestion_level": "high",  # Congested route
     },
     {
         "vehicle_id": "B2",
-        "speed": 40,
+        "speed": 60,  # Exceeding school zone speed limit
         "road_type": "school_zone",
         "signal": "green",
-        "is_moving": True,  # Proceeding legally at green light
+        "is_moving": True,
         "location": "normal",
-        "vehicle_action": "yielding",
+        "vehicle_action": "moving_forward",
         "is_intersection_blocked": False,
         "is_entering_intersection": False,
         "current_route": "Route 2",
-        "congestion_level": "low",
+        "congestion_level": "medium",
     },
     {
         "vehicle_id": "C3",
-        "speed": 80,  # Within speed limit
+        "speed": 120,  # Exceeding expressway speed limit
         "road_type": "expressway",
         "signal": "green",
         "is_moving": True,
@@ -70,7 +70,7 @@ navigation_data = [
         "is_intersection_blocked": False,
         "is_entering_intersection": False,
         "current_route": "Route 1",
-        "congestion_level": "medium",
+        "congestion_level": "high",  # Congested route
     },
     {
         "vehicle_id": "D4",
@@ -78,10 +78,10 @@ navigation_data = [
         "road_type": "residential",
         "signal": "green",
         "is_moving": True,
-        "location": "normal",
+        "location": "intersection",
         "vehicle_action": "moving_forward",
-        "is_intersection_blocked": False,
-        "is_entering_intersection": False,
+        "is_intersection_blocked": True,  # Blocking intersection
+        "is_entering_intersection": True,
         "current_route": "Route 3",
         "congestion_level": "low",
     },
@@ -90,17 +90,17 @@ navigation_data = [
         "speed": 35,
         "road_type": "school_zone",
         "signal": "amber",
-        "is_moving": False,  # Stopping at amber light
+        "is_moving": True,  # Moving on amber light instead of stopping
         "location": "normal",
-        "vehicle_action": "stopped",
+        "vehicle_action": "moving_forward",
         "is_intersection_blocked": False,
         "is_entering_intersection": False,
         "current_route": "Route 2",
-        "congestion_level": "low",
+        "congestion_level": "medium",
     },
     {
         "vehicle_id": "F6",
-        "speed": 85,  # Within expressway limit
+        "speed": 85,
         "road_type": "expressway",
         "signal": "green",
         "is_moving": True,
@@ -109,16 +109,16 @@ navigation_data = [
         "is_intersection_blocked": False,
         "is_entering_intersection": False,
         "current_route": "Route 1",
-        "congestion_level": "medium",
+        "congestion_level": "high",  # Congested route
     },
     {
         "vehicle_id": "G7",
-        "speed": 45,  # Within residential limit
+        "speed": 45,
         "road_type": "residential",
         "signal": "green",
         "is_moving": True,
         "location": "pedestrian_crossing",
-        "vehicle_action": "yielding",  # Giving way to pedestrians
+        "vehicle_action": "moving_forward",  # Not yielding to pedestrians
         "is_intersection_blocked": False,
         "is_entering_intersection": False,
         "current_route": "Route 3",
@@ -126,7 +126,7 @@ navigation_data = [
     },
     {
         "vehicle_id": "H8",
-        "speed": 25,  # Safe speed for school zone
+        "speed": 25,
         "road_type": "school_zone",
         "signal": "green",
         "is_moving": True,
@@ -135,10 +135,9 @@ navigation_data = [
         "is_intersection_blocked": False,
         "is_entering_intersection": False,
         "current_route": "Route 2",
-        "congestion_level": "low",
+        "congestion_level": "medium",
     },
 ]
-
 
 # Check Navigation Violations
 for vehicle in navigation_data:
