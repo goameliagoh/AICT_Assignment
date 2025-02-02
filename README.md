@@ -7,5 +7,5 @@ LOGICAL INFERENECE FOR TRAFFIC RULES
 
 
 ROUTE PLANNING
-1.run assignment.py( a bad name i know)
-2.
+1.run routeplanning.py
+2.choose from 5 options which algorithm you want to run in the python terminal
