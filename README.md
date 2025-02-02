@@ -1,7 +1,7 @@
 # AICT_Assignment
 
 
-LOGICAL INFERENECE FOR TRAFFIC RULES
+LOGICAL INFERENCE FOR TRAFFIC RULES
 1.run traffic_rules.py file
 
 
