@@ -1,172 +1,80 @@
-# Navigation Rules Implementation for ITS
-def check_speed_limit(speed, road_type):
-    """Check if the vehicle exceeds the speed limit for the given road type."""
-    speed_limits = {"expressway": 90, "residential": 50, "school_zone": 40}
-    return speed > speed_limits.get(road_type, 50)
+from logic import *
 
-def check_signal_compliance(signal, is_moving):
-    """Check if the vehicle is violating traffic signals."""
-    if signal == "red" and is_moving:
-        return "Red light violation"
-    if signal == "amber" and is_moving:
-        return "Amber light caution violation"
-    return None
+# Define symbols for each condition
+speed_limit_exceeded = Symbol("speed_limit_exceeded")
+road_type_expressway = Symbol("road_type_expressway")
+road_type_residential = Symbol("road_type_residential")
+road_type_school_zone = Symbol("road_type_school_zone")
+signal_red = Symbol("signal_red")
+signal_amber = Symbol("signal_amber")
+is_moving = Symbol("is_moving")
+location_pedestrian_crossing = Symbol("location_pedestrian_crossing")
+location_roundabout = Symbol("location_roundabout")
+vehicle_action_not_yielding = Symbol("vehicle_action_not_yielding")
+vehicle_action_not_giving_way = Symbol("vehicle_action_not_giving_way")
+is_intersection_blocked = Symbol("is_intersection_blocked")
+is_entering_intersection = Symbol("is_entering_intersection")
+congestion_level_high = Symbol("congestion_level_high")
 
-def check_right_of_way(location, vehicle_action):
-    """Check if the vehicle violates right-of-way rules."""
-    if location == "pedestrian_crossing" and vehicle_action == "not_yielding":
-        return "Violation: Failed to yield at pedestrian crossing"
-    if location == "roundabout" and vehicle_action == "not_giving_way":
-        return "Violation: Failed to give way at roundabout"
-    return None
+# Define knowledge base for traffic rules
+knowledge = And(
+    # Speed Limit Rules
+    Implication(And(road_type_expressway, speed_limit_exceeded), Symbol("speeding_violation_expressway")),
+    Implication(And(road_type_residential, speed_limit_exceeded), Symbol("speeding_violation_residential")),
+    Implication(And(road_type_school_zone, speed_limit_exceeded), Symbol("speeding_violation_school_zone")),
 
-def check_intersection_logic(is_intersection_blocked, is_entering_intersection):
-    """Ensure vehicles don't block intersections."""
-    if is_intersection_blocked and is_entering_intersection:
-        return "Violation: Blocking intersection"
-    return None
+    # Signal Compliance Rules
+    Implication(And(signal_red, is_moving), Symbol("red_light_violation")),
+    Implication(And(signal_amber, is_moving), Symbol("amber_light_caution_violation")),
 
-def check_traffic_congestion(current_route, congestion_level):
-    """Suggest rerouting if congestion is too high."""
-    if congestion_level == "high":
-        return f"High congestion detected on {current_route}. Consider rerouting."
-    return None
+    # Right of Way Rules
+    Implication(And(location_pedestrian_crossing, vehicle_action_not_yielding), Symbol("failed_to_yield_at_pedestrian_crossing")),
+    Implication(And(location_roundabout, vehicle_action_not_giving_way), Symbol("failed_to_give_way_at_roundabout")),
 
+    # Intersection Logic Rule
+    Implication(And(is_intersection_blocked, is_entering_intersection), Symbol("blocking_intersection")),
+
+    # Traffic Congestion Rule
+    Implication(congestion_level_high, Symbol("high_congestion_detected"))
+)
+
+# Navigation data
 navigation_data = [
-    {
-        "vehicle_id": "A1",
-        "speed": 100,
-        "road_type": "expressway",
-        "signal": "red",
-        "is_moving": True,  # Violating red light rule
-        "location": "pedestrian_crossing",
-        "vehicle_action": "moving_forward",
-        "is_intersection_blocked": False,
-        "is_entering_intersection": False,
-        "current_route": "Route 1",
-        "congestion_level": "high",  # Congested route
-    },
-    {
-        "vehicle_id": "B2",
-        "speed": 60,  # Exceeding school zone speed limit
-        "road_type": "school_zone",
-        "signal": "green",
-        "is_moving": True,
-        "location": "normal",
-        "vehicle_action": "moving_forward",
-        "is_intersection_blocked": False,
-        "is_entering_intersection": False,
-        "current_route": "Route 2",
-        "congestion_level": "medium",
-    },
-    {
-        "vehicle_id": "C3",
-        "speed": 120,  # Exceeding expressway speed limit
-        "road_type": "expressway",
-        "signal": "green",
-        "is_moving": True,
-        "location": "normal",
-        "vehicle_action": "moving_forward",
-        "is_intersection_blocked": False,
-        "is_entering_intersection": False,
-        "current_route": "Route 1",
-        "congestion_level": "high",  # Congested route
-    },
-    {
-        "vehicle_id": "D4",
-        "speed": 50,
-        "road_type": "residential",
-        "signal": "green",
-        "is_moving": True,
-        "location": "intersection",
-        "vehicle_action": "moving_forward",
-        "is_intersection_blocked": True,  # Blocking intersection
-        "is_entering_intersection": True,
-        "current_route": "Route 3",
-        "congestion_level": "low",
-    },
-    {
-        "vehicle_id": "E5",
-        "speed": 35,
-        "road_type": "school_zone",
-        "signal": "amber",
-        "is_moving": True,  # Moving on amber light instead of stopping
-        "location": "normal",
-        "vehicle_action": "moving_forward",
-        "is_intersection_blocked": False,
-        "is_entering_intersection": False,
-        "current_route": "Route 2",
-        "congestion_level": "medium",
-    },
-    {
-        "vehicle_id": "F6",
-        "speed": 85,
-        "road_type": "expressway",
-        "signal": "green",
-        "is_moving": True,
-        "location": "normal",
-        "vehicle_action": "moving_forward",
-        "is_intersection_blocked": False,
-        "is_entering_intersection": False,
-        "current_route": "Route 1",
-        "congestion_level": "high",  # Congested route
-    },
-    {
-        "vehicle_id": "G7",
-        "speed": 45,
-        "road_type": "residential",
-        "signal": "green",
-        "is_moving": True,
-        "location": "pedestrian_crossing",
-        "vehicle_action": "moving_forward",  # Not yielding to pedestrians
-        "is_intersection_blocked": False,
-        "is_entering_intersection": False,
-        "current_route": "Route 3",
-        "congestion_level": "low",
-    },
-    {
-        "vehicle_id": "H8",
-        "speed": 25,
-        "road_type": "school_zone",
-        "signal": "green",
-        "is_moving": True,
-        "location": "normal",
-        "vehicle_action": "moving_forward",
-        "is_intersection_blocked": False,
-        "is_entering_intersection": False,
-        "current_route": "Route 2",
-        "congestion_level": "medium",
-    },
+    {"vehicle_id": "A1", "speed_limit_exceeded": True, "road_type_expressway": True, "road_type_residential": False, "road_type_school_zone": False, "signal_red": False, "signal_amber": False, "is_moving": True, "location_pedestrian_crossing": True, "vehicle_action_not_yielding": True, "is_intersection_blocked": False, "is_entering_intersection": False, "congestion_level_high": True},
+    {"vehicle_id": "B2", "speed_limit_exceeded": True, "road_type_expressway": False, "road_type_residential": False, "road_type_school_zone": True, "signal_red": False, "signal_amber": False, "is_moving": True, "location_pedestrian_crossing": False, "vehicle_action_not_yielding": False, "is_intersection_blocked": False, "is_entering_intersection": False, "congestion_level_high": False},
+    {"vehicle_id": "C3", "speed_limit_exceeded": True, "road_type_expressway": True, "road_type_residential": False, "road_type_school_zone": False, "signal_red": False, "signal_amber": False, "is_moving": True, "location_pedestrian_crossing": False, "vehicle_action_not_yielding": False, "is_intersection_blocked": False, "is_entering_intersection": False, "congestion_level_high": True},
+    {"vehicle_id": "D4", "speed_limit_exceeded": False, "road_type_expressway": False, "road_type_residential": True, "road_type_school_zone": False, "signal_red": False, "signal_amber": False, "is_moving": True, "location_pedestrian_crossing": False, "vehicle_action_not_yielding": False, "is_intersection_blocked": True, "is_entering_intersection": True, "congestion_level_high": False},
+    {"vehicle_id": "E5", "speed_limit_exceeded": False, "road_type_expressway": False, "road_type_residential": False, "road_type_school_zone": True, "signal_red": False, "signal_amber": True, "is_moving": True, "location_pedestrian_crossing": False, "vehicle_action_not_yielding": False, "is_intersection_blocked": False, "is_entering_intersection": False, "congestion_level_high": False},
+    {"vehicle_id": "F6", "speed_limit_exceeded": False, "road_type_expressway": True, "road_type_residential": False, "road_type_school_zone": False, "signal_red": False, "signal_amber": False, "is_moving": True, "location_pedestrian_crossing": False, "vehicle_action_not_yielding": False, "is_intersection_blocked": False, "is_entering_intersection": False, "congestion_level_high": True},
+    {"vehicle_id": "G7", "speed_limit_exceeded": False, "road_type_expressway": False, "road_type_residential": True, "road_type_school_zone": False, "signal_red": True, "signal_amber": False, "is_moving": True, "location_pedestrian_crossing": True, "vehicle_action_not_yielding": True, "is_intersection_blocked": False, "is_entering_intersection": False, "congestion_level_high": False},
+    {"vehicle_id": "H8", "speed_limit_exceeded": False, "road_type_expressway": False, "road_type_residential": False, "road_type_school_zone": True, "signal_red": False, "signal_amber": False, "is_moving": True, "location_pedestrian_crossing": False, "vehicle_action_not_yielding": False, "is_intersection_blocked": False, "is_entering_intersection": False, "congestion_level_high": False}
 ]
 
-# Check Navigation Violations
+# Helper function to create a model from vehicle data
+def create_model(vehicle_data):
+    model = {
+        speed_limit_exceeded: vehicle_data["speed_limit_exceeded"],
+        road_type_expressway: vehicle_data["road_type_expressway"],
+        road_type_residential: vehicle_data["road_type_residential"],
+        road_type_school_zone: vehicle_data["road_type_school_zone"],
+        signal_red: vehicle_data["signal_red"],
+        signal_amber: vehicle_data["signal_amber"],
+        is_moving: vehicle_data["is_moving"],
+        location_pedestrian_crossing: vehicle_data["location_pedestrian_crossing"],
+        location_roundabout: False,  
+        vehicle_action_not_yielding: vehicle_data["vehicle_action_not_yielding"],
+        vehicle_action_not_giving_way: False,  
+        is_intersection_blocked: vehicle_data["is_intersection_blocked"],
+        is_entering_intersection: vehicle_data["is_entering_intersection"],
+        congestion_level_high: vehicle_data["congestion_level_high"]
+    }
+    return model
+
+# Check violations for each vehicle
 for vehicle in navigation_data:
-    print(f"Checking Vehicle {vehicle['vehicle_id']}:")
-
-    # Speed Limit
-    if check_speed_limit(vehicle["speed"], vehicle["road_type"]):
-        print(f"- Speeding violation on {vehicle['road_type']}.")
-
-    # Signal Compliance
-    signal_violation = check_signal_compliance(vehicle["signal"], vehicle["is_moving"])
-    if signal_violation:
-        print(f"- {signal_violation}.")
-
-    # Right of Way
-    right_of_way_violation = check_right_of_way(vehicle["location"], vehicle["vehicle_action"])
-    if right_of_way_violation:
-        print(f"- {right_of_way_violation}.")
-
-    # Intersection Logic
-    intersection_violation = check_intersection_logic(
-        vehicle["is_intersection_blocked"], vehicle["is_entering_intersection"]
-    )
-    if intersection_violation:
-        print(f"- {intersection_violation}.")
-
-    # Traffic Congestion
-    congestion_warning = check_traffic_congestion(vehicle["current_route"], vehicle["congestion_level"])
-    if congestion_warning:
-        print(f"- {congestion_warning}.")
-
-    print("\n")
+    print(f"Violations for Vehicle {vehicle['vehicle_id']}:")
+    model = create_model(vehicle)
+    for violation in ["speeding_violation_expressway", "speeding_violation_residential", "speeding_violation_school_zone", "red_light_violation", "amber_light_caution_violation", "failed_to_yield_at_pedestrian_crossing", "failed_to_give_way_at_roundabout", "blocking_intersection", "high_congestion_detected"]:
+        if model_check(knowledge, Symbol(violation), model):
+            print(f"- {violation.replace('_', ' ').capitalize()}")
+    print()
